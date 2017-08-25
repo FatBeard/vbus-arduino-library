@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 
-
 #if !(defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
 #include <AltSoftSerial.h>
 #endif
@@ -34,10 +33,9 @@ class VBUSDecoder
 
   protected:
   private:
-
-	#if !(defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
+#if !(defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
 	AltSoftSerial Serial1;
-	#endif
+#endif
 
 	bool relayPump = false;
 	bool relay3WayValve = false;

@@ -1,4 +1,5 @@
 #include "VBUSDecoder.h"
+#define DEBUG 0
 
 // Clear all maximum values
 void VBUSDecoder::clearMaxValues()
@@ -595,7 +596,7 @@ bool VBUSDecoder::vBusRead()
 
         Relay1 = (Buffer[F]);
         Relay2 = (Buffer[F + 1]);
-        ErrorMask = Buffer[F + 2]; 
+        ErrorMask = Buffer[F + 2];
         Scheme = Buffer[F + 3];
 
         PrintHex8(&Buffer[F], 4);

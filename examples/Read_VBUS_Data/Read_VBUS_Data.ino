@@ -1,4 +1,3 @@
-#define DEBUG 1
 #include "VBUSDecoder.h"
 
 VBUSDecoder vb;
@@ -6,18 +5,14 @@ VBUSDecoder vb;
 void setup()
 {
 
-  vb;
-
-#if DEBUG
   Serial.begin(9600);
-#endif
   vb.initialise();
-
 }
 
 void loop()
 {
   vb.readSensor();
+
   Serial.println("");
   Serial.println("*** Fresh Read ***");
   Serial.print("Collector Temp: ");
@@ -38,7 +33,5 @@ void loop()
   Serial.println(vb.getSystemTime());
   Serial.println("*** End Read ***");
 
-
   delay(20000);
 }
-
