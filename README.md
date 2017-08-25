@@ -21,7 +21,7 @@ If it does not find any of the supported controllers, it will try to decode the 
 
 ## Hardware:
 * VBus RX interface circuit
-* Arduino Uno
+* Most arduinos with just one port. The Mega is supported also.
 
 VBus is NOT RS485. So you need a specific converter circuit to make the VBus data readable for the Arduino UART.
 See f.i. [Here](https://piamble.wordpress.com/tag/vbus/).
@@ -32,7 +32,14 @@ Serial is used to debug the output to PC.
 Vbus serial works with 9600 Baudrate and 8N1.
 
 Arduino Uno:
-* Serial  on pins  8 (RX)
+* Serial input on pin  8 (RX)
+
+Arduino Mega:
+
+Serial on pins 0 (RX) and 1 (TX),
+Serial1 on pins 19 (RX) and 18 (TX),
+Serial2 on pins 17 (RX) and 16 (TX),
+Serial3 on pins 15 (RX) and 14 (TX).
 
 
 ### My controller is not in the list, how can I add it?
