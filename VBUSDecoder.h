@@ -13,19 +13,19 @@
 class VBUSDecoder
 {
   public:
-	void setup();
+	bool initialise();
 	float getS1Temp();
 	float getS2Temp();
 	float getS3Temp();
 	float getS4Temp();
 	bool readSensor();
-	bool getRelay1Status();
-	bool getRelay2Status();
-	bool getSystemAlertStatus();
-	int getRelay1Speed();
-	int getRelay2Speed();
-	int getOperatingHoursRelay1();
-	int getOperatingHoursRelay2();
+	bool getP1Status();
+	bool getP2Status();
+	bool getAlertStatus();
+	int getP1Speed();
+	int getP2Speed();
+	int getP1OperatingHours();
+	int getP2OperatingHours();
 	String getSystemTime();
 
   protected:
@@ -87,7 +87,7 @@ class VBUSDecoder
 	long lastTimeTimer;
 	long timerInterval;
 
-	void vBusClearMax();
+	void clearMaxValues();
 	bool vBusRead();
 	float calcTemp(int Byte1, int Byte2);
 	void InjectSeptet(unsigned char *Buffer, int Offset, int Length);

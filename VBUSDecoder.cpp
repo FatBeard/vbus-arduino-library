@@ -2,7 +2,7 @@
 #define DEBUG 1
 
 // Clear all maximum values
-void VBUSDecoder::vBusClearMax()
+void VBUSDecoder::clearMaxValues()
 {
   Sensor1_temp_max = 0.0;
   Sensor2_temp_max = 0.0;
@@ -10,12 +10,13 @@ void VBUSDecoder::vBusClearMax()
   Sensor4_temp_max = 0.0;
 }
 
-void VBUSDecoder::setup()
+bool VBUSDecoder::initialise()
 {
 
   altSerial.begin(9600);
-  vBusClearMax();
-} // end void setup()
+  clearMaxValues();
+  return true;
+} // end void initialise()
 
 float VBUSDecoder::getS1Temp()
 {
@@ -38,40 +39,40 @@ float VBUSDecoder::getS4Temp()
   return Sensor4_temp;
 }
 
-bool VBUSDecoder::getRelay1Status()
+bool VBUSDecoder::getP1Status()
 {
   return relayPump;
 }
 
-bool VBUSDecoder::getRelay2Status()
+bool VBUSDecoder::getP2Status()
 {
   return relay3WayValve;
 }
 
-int VBUSDecoder::getRelay1Speed()
+int VBUSDecoder::getP1Speed()
 {
 
   return String(Relay1, DEC).toInt();
 }
 
-int VBUSDecoder::getRelay2Speed()
+int VBUSDecoder::getP2Speed()
 {
 
   return String(Relay2, DEC).toInt();
 }
-int VBUSDecoder::getOperatingHoursRelay1()
+int VBUSDecoder::getP1OperatingHours()
 {
 
   return String(OperatingHoursRelais1, DEC).toInt();
 }
 
-int VBUSDecoder::getOperatingHoursRelay2()
+int VBUSDecoder::getP2OperatingHours()
 {
 
   return String(OperatingHoursRelais2, DEC).toInt();
 }
 
-bool VBUSDecoder::getSystemAlertStatus()
+bool VBUSDecoder::getAlertStatus()
 {
   return SystemAlert;
 }
