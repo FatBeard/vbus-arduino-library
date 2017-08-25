@@ -1,5 +1,4 @@
 #include "VBUSDecoder.h"
-#define DEBUG 1
 
 // Clear all maximum values
 void VBUSDecoder::clearMaxValues()
@@ -13,7 +12,7 @@ void VBUSDecoder::clearMaxValues()
 bool VBUSDecoder::initialise()
 {
 
-  altSerial.begin(9600);
+  Serial1.begin(9600);
   clearMaxValues();
   return true;
 } // end void initialise()
@@ -210,9 +209,9 @@ bool VBUSDecoder::vBusRead()
 
   while ((!stop) and (!quit))
   {
-    if (altSerial.available())
+    if (Serial1.available())
     {
-      c = altSerial.read();
+      c = Serial1.read();
 
       char sync1 = 0xAA;
       if (c == sync1)

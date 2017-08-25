@@ -1,8 +1,12 @@
 #ifndef vbusdecoder_h
 #define vbusdecoder_h
 
-#include <AltSoftSerial.h>
 #include <Arduino.h>
+
+
+#if !(defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
+#include <AltSoftSerial.h>
+#endif
 
 // Settings for the VBus decoding
 #define FLength 6				// Framelength
@@ -30,6 +34,11 @@ class VBUSDecoder
 
   protected:
   private:
+
+	#if !(defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
+	AltSoftSerial Serial1;
+	#endif
+
 	bool relayPump = false;
 	bool relay3WayValve = false;
 	bool SystemAlert = false;
@@ -83,7 +92,6 @@ class VBUSDecoder
 	unsigned char Framecnt;
 	unsigned char Septet;
 	unsigned char Checksum;
-	AltSoftSerial altSerial;
 	long lastTimeTimer;
 	long timerInterval;
 
