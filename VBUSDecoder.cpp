@@ -1,13 +1,26 @@
+/** Copyright (c) 2016 - 'bbqkees' @ www.domoticz.com/forum
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+* and associated documentation files (the "Software"), to deal in the Software without restriction,
+* including without limitation the rights to use, copy, modify, merge, publish, distribute,
+* sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+* TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+
 #include "VBUSDecoder.h"
 #define DEBUG 0
 
 // Clear all maximum values
 void VBUSDecoder::clearMaxValues()
 {
-  Sensor1_temp_max = 0.0;
-  Sensor2_temp_max = 0.0;
-  Sensor3_temp_max = 0.0;
-  Sensor4_temp_max = 0.0;
+  sensor1TempMax = 0.0;
+  sensor2TempMax = 0.0;
+  sensor3TempMax = 0.0;
+  sensor4TempMax = 0.0;
 }
 
 bool VBUSDecoder::initialise()
@@ -21,22 +34,22 @@ bool VBUSDecoder::initialise()
 float VBUSDecoder::getS1Temp()
 {
 
-  return Sensor1_temp;
+  return sensor1Temp;
 }
 
 float VBUSDecoder::getS2Temp()
 {
-  return Sensor2_temp;
+  return sensor2Temp;
 }
 
 float VBUSDecoder::getS3Temp()
 {
-  return Sensor3_temp;
+  return sensor3Temp;
 }
 
 float VBUSDecoder::getS4Temp()
 {
-  return Sensor4_temp;
+  return sensor4Temp;
 }
 
 bool VBUSDecoder::getP1Status()
@@ -63,13 +76,19 @@ int VBUSDecoder::getP2Speed()
 int VBUSDecoder::getP1OperatingHours()
 {
 
-  return String(OperatingHoursRelais1, DEC).toInt();
+  return String(OperatingHoursRelay1, DEC).toInt();
 }
 
 int VBUSDecoder::getP2OperatingHours()
 {
 
-  return String(OperatingHoursRelais2, DEC).toInt();
+  return String(OperatingHoursRelay2, DEC).toInt();
+}
+
+int VBUSDecoder::getScheme()
+{
+
+  return String(Scheme, DEC).toInt();
 }
 
 bool VBUSDecoder::getAlertStatus()
@@ -113,13 +132,13 @@ bool VBUSDecoder::readSensor()
     Serial.println(Checksum);
     Serial.println("------Values------");
     Serial.print("Sensor 1: ");
-    Serial.println(Sensor1_temp);
+    Serial.println(sensor1Temp);
     Serial.print("Sensor 2: ");
-    Serial.println(Sensor2_temp);
+    Serial.println(sensor2Temp);
     Serial.print("Sensor 3: ");
-    Serial.println(Sensor3_temp);
+    Serial.println(sensor3Temp);
     Serial.print("Sensor 4: ");
-    Serial.println(Sensor4_temp);
+    Serial.println(sensor4Temp);
     Serial.print("Relay 1: ");
     Serial.println(Relay1, DEC);
     Serial.print("Relay 2: ");
@@ -191,6 +210,10 @@ void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
       Buffer[Offset + i] |= 0x80;
     }
   }
+
+#if DEBUG
+  PrintHex8(&Buffer[Offset], Length);
+#endif
 }
 
 // The following function reads the data from the bus and converts it all
@@ -348,9 +371,9 @@ bool VBUSDecoder::vBusRead()
         InjectSeptet(Buffer, F, 4);
 
         // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-        Sensor1_temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
         // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-        Sensor2_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
@@ -358,8 +381,8 @@ bool VBUSDecoder::vBusRead()
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        Sensor3_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        Sensor4_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
@@ -391,8 +414,8 @@ bool VBUSDecoder::vBusRead()
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        OperatingHoursRelais1 = Buffer[F + 1] << 8 | Buffer[F];
-        OperatingHoursRelais2 = Buffer[F + 3] << 8 | Buffer[F + 2];
+        OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
+        OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
 
         //*******************  Frame 6  *******************
         F = FOffset + FLength * 5;
@@ -458,8 +481,8 @@ bool VBUSDecoder::vBusRead()
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        Sensor1_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        Sensor2_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
@@ -467,8 +490,8 @@ bool VBUSDecoder::vBusRead()
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        Sensor3_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        Sensor4_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
@@ -523,74 +546,24 @@ bool VBUSDecoder::vBusRead()
         Serial.println("---------------");
         Serial.println("Now decoding for DeltaSol C 0x4212");
         Serial.println("---------------");
-
 #endif
-
-        // Frame info for the Resol DeltaSol C (Joule)
-        // check VBusprotocol specification for other products
-
-        // This library is made for the Resol DeltaSol C (0x4212)
-
-        //Offset  Mask        Name                Factor      Unit
-        //0                   Temperature S1      1.0         °C
-        //1                   Temperature S1      256.0       °C
-        //2                   Temperature S2      1.0         °C
-        //3                   Temperature S2      256.0       °C
-        //4                   Temperature S3      1.0         °C
-        //5                   Temperature S3      256.0       °C
-        //6                   Temperature S4      1.0         °C
-        //7                   Temperature S4      256.0       °C
-        //8                   Pump Speed R1       1           %
-        //9                   Pump Speed R2       1           %
-        //10                  Error Mask          1
-        //11                  Scheme              1
-        //12                  Operating Hours R1  1           h
-        //13                  Operating Hours R1  256         h
-        //14                  Operating Hours R2  1           h
-        //15                  Operating Hours R2  256         h
-        //16                  Heat Quantity       1           Wh
-        //17                  Heat Quantity       256         Wh
-        //18                  Heat Quantity       1000        Wh
-        //19                  Heat Quantity       256000      Wh
-        //20                  Heat Quantity       1000000     Wh
-        //21                  Heat Quantity       256000000   Wh
-        //22                  Minute of Day       1
-        //23                  Minute of Day       256
-
-        //
-        // Each frame has 6 bytes
-        // byte 1 to 4 are data bytes -> MSB of each bytes
-        // byte 5 is a septet and contains MSB of bytes 1 to 4
-        // byte 6 is a checksum
-        //
         //*******************  Frame 1  *******************
-
         F = FOffset;
-
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-        Sensor1_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-        Sensor2_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
-        PrintHex8(&Buffer[F], 4);
-
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
 
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        Sensor3_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        Sensor4_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
-        PrintHex8(&Buffer[F], 4);
-
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
-
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
@@ -598,50 +571,31 @@ bool VBUSDecoder::vBusRead()
         Relay2 = (Buffer[F + 1]);
         ErrorMask = Buffer[F + 2];
         Scheme = Buffer[F + 3];
-
-        PrintHex8(&Buffer[F], 4);
-
         //*******************  Frame 4  *******************
         F = FOffset + FLength * 3;
-
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        OperatingHoursRelais1 = Buffer[F + 1] << 8 | Buffer[F];
-        OperatingHoursRelais2 = Buffer[F + 3] << 8 | Buffer[F + 2];
-
-        PrintHex8(&Buffer[F], 4);
-
+        OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
+        OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
         //*******************  Frame 5  *******************
         F = FOffset + FLength * 4;
-
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
         HeatQuantity = (Buffer[F + 1] << 8 | Buffer[F]) + (Buffer[F + 3] << 8 | Buffer[F + 2]) * 1000;
-
-        PrintHex8(&Buffer[F], 4);
-
         //*******************  Frame 6  *******************
         F = FOffset + FLength * 5;
-
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
         HeatQuantity = HeatQuantity + (Buffer[F + 1] << 8 | Buffer[F]) * 1000000;
-
         SystemTime = Buffer[F + 3] << 8 | Buffer[F + 2];
-
-        PrintHex8(&Buffer[F], 4);
-
         //*******************  Frame 7  *******************
         F = FOffset + FLength * 6;
 
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
-
-        PrintHex8(&Buffer[F], 4);
-
         ///******************* End of frames ****************
 
       } // end 0x4212 DeltaSol C
@@ -682,9 +636,9 @@ bool VBUSDecoder::vBusRead()
         InjectSeptet(Buffer, F, 4);
 
         // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-        Sensor1_temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
         // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-        Sensor2_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
@@ -692,21 +646,21 @@ bool VBUSDecoder::vBusRead()
         Septet = Buffer[F + FSeptet];
         InjectSeptet(Buffer, F, 4);
 
-        Sensor3_temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        Sensor4_temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
 
         ///******************* End of frames ****************
 
       } //End of Default temp 1-4 extraction
 
-      if (Sensor1_temp > Sensor1_temp_max)
-        Sensor1_temp_max = Sensor1_temp;
-      if (Sensor2_temp > Sensor2_temp_max)
-        Sensor2_temp_max = Sensor2_temp;
-      if (Sensor3_temp > Sensor3_temp_max)
-        Sensor3_temp_max = Sensor3_temp;
-      if (Sensor4_temp > Sensor4_temp_max)
-        Sensor4_temp_max = Sensor4_temp;
+      if (sensor1Temp > sensor1TempMax)
+        sensor1TempMax = sensor1Temp;
+      if (sensor2Temp > sensor2TempMax)
+      sensor2TempMax = sensor2Temp;
+      if (sensor3Temp > sensor3TempMax)
+      sensor3TempMax = sensor3Temp;
+      if (sensor4Temp > sensor4TempMax)
+      sensor4TempMax = sensor4Temp;
 
     } // end if command 0x0100
   }   // end !quit

@@ -1,3 +1,16 @@
+/** Copyright (c) 2016 - 'bbqkees' @ www.domoticz.com/forum
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+* and associated documentation files (the "Software"), to deal in the Software without restriction,
+* including without limitation the rights to use, copy, modify, merge, publish, distribute,
+* sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+* TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
+
 #ifndef vbusdecoder_h
 #define vbusdecoder_h
 
@@ -29,6 +42,7 @@ class VBUSDecoder
 	int getP2Speed();
 	int getP1OperatingHours();
 	int getP2OperatingHours();
+	int getScheme();
 	String getSystemTime();
 
   protected:
@@ -41,15 +55,15 @@ class VBUSDecoder
 	bool relay3WayValve = false;
 	bool SystemAlert = false;
 
-	float Sensor1_temp;
-	float Sensor2_temp;
-	float Sensor3_temp;
-	float Sensor4_temp;
+	float sensor1Temp;
+	float sensor2Temp;
+	float sensor3Temp;
+	float sensor4Temp;
 
-	float Sensor1_temp_max;
-	float Sensor2_temp_max;
-	float Sensor3_temp_max;
-	float Sensor4_temp_max;
+	float sensor1TempMax;
+	float sensor2TempMax;
+	float sensor3TempMax;
+	float sensor4TempMax;
 
 	// Conergy DT5 specific
 	char PumpSpeed1; // in  %
@@ -60,8 +74,8 @@ class VBUSDecoder
 	char OptionPostPulse;
 	char OptionThermostat;
 	char OptionHQM;
-	uint16_t OperatingHoursRelais1;
-	uint16_t OperatingHoursRelais2;
+	uint16_t OperatingHoursRelay1;
+	uint16_t OperatingHoursRelay2;
 	uint32_t HeatQuantity;
 	uint16_t Version;
 	uint16_t OperatingHoursRelais1Today;

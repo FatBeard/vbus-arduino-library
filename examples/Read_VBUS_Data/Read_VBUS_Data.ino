@@ -29,6 +29,8 @@ void loop()
   Serial.println(vb.getP1OperatingHours());
   Serial.print("System Alert Status: ");
   Serial.println(vb.getAlertStatus());
+  Serial.print("Scheme: ");
+  Serial.println(vb.getScheme());
   Serial.print("System Time: ");
   Serial.println(vb.getSystemTime());
   Serial.println("*** End Read ***");
