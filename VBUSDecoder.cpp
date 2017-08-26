@@ -211,9 +211,7 @@ void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
     }
   }
 
-#if DEBUG
   PrintHex8(&Buffer[Offset], Length);
-#endif
 }
 
 // The following function reads the data from the bus and converts it all
