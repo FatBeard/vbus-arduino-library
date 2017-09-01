@@ -1,4 +1,4 @@
-/** Copyright (c) 2016 - 'bbqkees' @ www.domoticz.com/forum
+/** Copyright (c) 2017 - 'FatBeard' @ www.domoticz.com/forum
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without restriction,
 * including without limitation the rights to use, copy, modify, merge, publish, distribute,
@@ -654,11 +654,11 @@ bool VBUSDecoder::vBusRead()
       if (sensor1Temp > sensor1TempMax)
         sensor1TempMax = sensor1Temp;
       if (sensor2Temp > sensor2TempMax)
-      sensor2TempMax = sensor2Temp;
+        sensor2TempMax = sensor2Temp;
       if (sensor3Temp > sensor3TempMax)
-      sensor3TempMax = sensor3Temp;
+        sensor3TempMax = sensor3Temp;
       if (sensor4Temp > sensor4TempMax)
-      sensor4TempMax = sensor4Temp;
+        sensor4TempMax = sensor4Temp;
 
     } // end if command 0x0100
   }   // end !quit
@@ -686,6 +686,7 @@ float VBUSDecoder::calcTemp(int Byte1, int Byte2)
   return (float)((float)v * 0.1);
 }
 
+// Prints the hex values of the char array sent to it.
 void VBUSDecoder::PrintHex8(unsigned char *data, uint8_t length) // prints 8-bit data in hex with leading zeroes
 {
 #if DEBUG
