@@ -27,7 +27,7 @@ VBus is NOT RS485. So you need a specific converter circuit to make the VBus dat
 See f.i. [Here](https://piamble.wordpress.com/tag/vbus/).
 
 
-AltSoftSerial is used for the VBus module.
+AltSoftSerial library is used for the VBus module if not compiled for the arduino mega.
 Serial is used to debug the output to PC. 
 Vbus serial works with 9600 Baudrate and 8N1.
 
