@@ -162,13 +162,9 @@ bool VBUSDecoder::readSensor()
   */
 
   // Convert relay value to On or Off.
-  if (Relay1 == 0x64)
+  if (Relay1 != 0x00)
   {
     relayPump = true;
-  }
-  else if (Relay1 == 0x00)
-  {
-    relayPump = false;
   }
   else
   {
