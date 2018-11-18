@@ -20,8 +20,10 @@ Currently supports the following controllers:
 If it does not find any of the supported controllers, it will try to decode the first 2 frames which usually contain Temp 1 to 4.
 
 ## Hardware:
-* VBus RX interface circuit
+* VBus RX interface circuit. You can order a SMD version of the PCB with the link below.
 * Most arduinos with just one port. The Mega is supported also.
+
+<a href="https://PCBs.io/share/8Lg7B"><img src="https://s3.amazonaws.com/pcbs.io/share.png" alt="Order from PCBs.io"></img></a>
 
 VBus is NOT RS485. So you need a specific converter circuit to make the VBus data readable for the Arduino UART.
 See f.i. [Here](https://piamble.wordpress.com/tag/vbus/).
