@@ -593,6 +593,55 @@ bool VBUSDecoder::vBusRead()
         ///******************* End of frames ****************
 
       } // end 0x4212 DeltaSol C
+      else if (Source_address == 0x7311){ // Deltasol M, alias Roth B/W Komfort
+        // 6 temp frames, 12 sensors
+        // Only decoding the first four due to library limitations
+        unsigned int frame = 0;
+        // Frame 1:
+        F = FOffset + frame * FLength;
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, Septet, 4);
+        sensor1Temp = CalcTemp(Buffer[F + 1], Buffer[F]);
+        sensor2Temp = CalcTemp(Buffer[F + 3], Buffer[F + 2]);
+        // Frame 2:
+        frame = 2;
+        F = FOffset + frame * FLength;
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, Septet, 4);
+        sensor3Temp = CalcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = CalcTemp(Buffer[F + 3], Buffer[F + 2]);
+        // Frame 7: Irradiation and unused
+        /*
+        frame = 7
+        F = FOffset + 6 * FLength;
+        irradiation = CalcTemp(Buffer[F + 1], Buffer[F]);
+        */
+        // Frame 8: Pulse counter 1
+        // Frame 9: Pulse counter 2
+        // Frame 10: Sensor errors: no sensor / shorted
+        // Frame 11: Sensors
+        // Frame 12: Relays 1-4
+        // Frame 13: Relays 5-8
+        // Frame 14: Relays 9-12
+        frame = 11;
+        F = FOffset + frame * FLength;
+        Relay1 = Buffer[F];
+        Relay2 = Buffer[F + 1];
+        // Frame 15: Not used / relays
+        // Frame 16: Errors / warnings
+        // Frame 17: Version, revision / time
+#ifdef DEBUG
+        Serial.println("Got values");
+        Serial.print("Temperature: ");
+        Serial.print(sensor1Temp);
+        Serial.print(", ");
+        Serial.print(sensor2Temp);
+        Serial.print(". Relays: ");
+        Serial.print(Relay1);
+        Serial.print(", ");
+        Serial.println(Relay2);
+#endif
+      }
 
       /* Add your own controller ID and code in the if statement below and uncomment
         else if (Source_address ==0x????){
