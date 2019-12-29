@@ -600,16 +600,16 @@ bool VBUSDecoder::vBusRead()
         // Frame 1:
         F = FOffset + frame * FLength;
         Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, Septet, 4);
-        sensor1Temp = CalcTemp(Buffer[F + 1], Buffer[F]);
-        sensor2Temp = CalcTemp(Buffer[F + 3], Buffer[F + 2]);
+        InjectSeptet(Buffer, F, 4);
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
         // Frame 2:
         frame = 2;
         F = FOffset + frame * FLength;
         Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, Septet, 4);
-        sensor3Temp = CalcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = CalcTemp(Buffer[F + 3], Buffer[F + 2]);
+        InjectSeptet(Buffer, F, 4);
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
         // Frame 7: Irradiation and unused
         /*
         frame = 7
