@@ -16,6 +16,7 @@ Currently supports the following controllers:
 * Oranier Aquacontrol III (0x5611)
 * Conergy DT5 (0x3271)
 * Joule / Resol Deltasol C (0x4212)
+* Deltasol M, also rebranded as Roth B/W Komfort (0x7311)
 
 If it does not find any of the supported controllers, it will try to decode the first 2 frames which usually contain Temp 1 to 4.
 
