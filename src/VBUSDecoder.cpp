@@ -212,7 +212,7 @@ void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
 
 // CRC calculation
 // From https://danielwippermann.github.io/resol-vbus/vbus-specification.html
-unsigned char VBUSDecoder::VBus_CalcCrc(const unsigned char *Buffer, int Offset, int Length)
+unsigned char VBUSDecoder::VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length)
 {
   unsigned char Crc;
   int i;
