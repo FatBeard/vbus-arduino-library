@@ -210,6 +210,20 @@ void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
   PrintHex8(&Buffer[Offset], Length);
 }
 
+// CRC calculation
+// From https://danielwippermann.github.io/resol-vbus/vbus-specification.html
+unsigned char VBUSDecoder::VBus_CalcCrc(const unsigned char *Buffer, int Offset, int Length)
+{
+  unsigned char Crc;
+  int i;
+
+  Crc = 0x7F;
+  for (i = 0; i < Length; i++) {
+    Crc = (Crc - Buffer [Offset + i]) & 0x7F;
+  }
+  return Crc;
+}
+
 // The following function reads the data from the bus and converts it all
 // depending on the used VBus controller.
 bool VBUSDecoder::vBusRead()
@@ -290,7 +304,7 @@ bool VBUSDecoder::vBusRead()
     Command = Buffer[7] << 8;
     Command |= Buffer[6];
     Framecnt = Buffer[8];
-    Checksum = Buffer[9]; //TODO check if Checksum is OK
+    Checksum = Buffer[9];
 #if DEBUG
     Serial.println("---------------");
     Serial.print("Destination: ");
@@ -311,7 +325,7 @@ bool VBUSDecoder::vBusRead()
     // Only analyse Commands 0x100 = Packet Contains data for slave
     // with correct length = 10 bytes for HEADER and 6 Bytes  for each frame
 
-    if ((Command == 0x0100) and (Bufferlength == 10 + Framecnt * 6))
+    if ((Command == 0x0100) and (Bufferlength == 10 + Framecnt * 6) and (Checksum == VBus_CalcCrc(Buffer, 1, 8) ) )
     {
 
       //Only decode the data from the correct source address
