@@ -1,23 +1,25 @@
+# Based on https://github.com/arduino/arduino-cli-example/blob/master/.github/workflows/test.yaml
+# Blog post explaining how this goes:
+# https://blog.arduino.cc/2019/11/14/arduino-on-github-actions/
+
 name: test-compilation
 on: [push, pull_request]
 jobs:
-  # This is the name of the job - can be whatever.
+  # Job name
   test-matrix:
     strategy:
       matrix:
         # The matrix will produce one job for each configuration
         # parameter of type `arduino-platform`
-        arduino-platform: ["arduino:samd", "arduino:avr"]
+        arduino-platform: ["arduino:avr"]
         # This is usually optional but we need to statically define the
         # FQBN of the boards we want to test for each platform. In the
         # future the CLI might automatically detect and download the core
         # needed to compile against a certain FQBN, at that point the
         # following `include` section will be useless.
         include:
-          # This works like this: when the platformn is "arduino:samd", the
-          # variable `fqbn` is set to "arduino:samd:nano_33_iot".
-          - arduino-platform: "arduino:samd"
-            fqbn: "arduino:samd:nano_33_iot"
+          # This works like this: when the platformn is "arduino:avr", the
+          # variable `fqbn` is set to "arduino:avr:uno".
           - arduino-platform: "arduino:avr"
             fqbn: "arduino:avr:uno"
 
