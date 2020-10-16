@@ -38,9 +38,9 @@ jobs:
         run: |
           arduino-cli core update-index
           arduino-cli core install ${{ matrix.arduino-platform }}
-	  arduino-cli lib install AltSoftSerial
+          arduino-cli lib install AltSoftSerial
 
       # Finally, we compile the sketch, using the FQBN that was set
       # in the build matrix.
       - name: Compile Sketch
-        run: arduino-cli compile --fqbn ${{ matrix.fqbn }}
+        run: arduino-cli compile --fqbn ${{ matrix.fqbn }} --dry-run
