@@ -1,4 +1,4 @@
-# Empty sketch needed just to reference the library we are actually testing
+// Empty sketch just to reference the library we are actually testing
 
 #include "VBUSDecoder.h"
 
