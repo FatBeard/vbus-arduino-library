@@ -112,7 +112,7 @@ class VBUSDecoder
 	float calcTemp(int Byte1, int Byte2);
 	void InjectSeptet(unsigned char *Buffer, int Offset, int Length);
 	void PrintHex8(unsigned char *data, uint8_t length); // prints 8-bit data in hex with leading zeroes
-        unsigned char VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length);
+	unsigned char VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length);
 };
 
 #endif
