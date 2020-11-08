@@ -214,14 +214,12 @@ void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
 // From https://danielwippermann.github.io/resol-vbus/vbus-specification.html
 unsigned char VBUSDecoder::VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length)
 {
-  unsigned char Crc;
-  int i;
+  unsigned char CRC = 0x7F;
 
-  Crc = 0x7F;
-  for (i = 0; i < Length; i++) {
-    Crc = (Crc - Buffer [Offset + i]) & 0x7F;
+  for (int i = 0; i < Length; i++) {
+    CRC = (CRC - Buffer [Offset + i]) & 0x7F;
   }
-  return Crc;
+  return CRC;
 }
 
 // The following function reads the data from the bus and converts it all
@@ -230,22 +228,19 @@ bool VBUSDecoder::vBusRead()
 {
   int F;
   char c;
-  bool start, stop, quit;
+  const char sync1 = 0xAA;
 
-  start = true;
-  stop = false;
-  quit = false;
-  Bufferlength = 0;
-  lastTimeTimer = 0;
-  lastTimeTimer = millis();
+  bool start = true;
+  bool stop = false;
+  bool quit = false;
+  int Bufferlength = 0;
+  unsigned long lastTimeTimer = millis();
 
   while ((!stop) and (!quit))
   {
     if (Serial1.available())
     {
       c = Serial1.read();
-
-      char sync1 = 0xAA;
       if (c == sync1)
       {
 
@@ -264,7 +259,6 @@ bool VBUSDecoder::vBusRead()
         {
           if (Bufferlength < 20)
           {
-            lastTimeTimer = 0;
             lastTimeTimer = millis();
             Bufferlength = 0;
           }
@@ -372,78 +366,68 @@ bool VBUSDecoder::vBusRead()
         // byte 6 is a checksum
         //
         //*******************  Frame 1  *******************
-
         F = FOffset;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+          // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+          sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+          // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+          sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+          sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+          sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        PumpSpeed1 = (Buffer[F]);
-        PumpSpeed2 = (Buffer[F + 1]);
-        RelaisMask = Buffer[F + 2];
-        ErrorMask = Buffer[F + 3];
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  PumpSpeed1 = (Buffer[F]);
+	  PumpSpeed2 = (Buffer[F + 1]);
+	  RelaisMask = Buffer[F + 2];
+	  ErrorMask = Buffer[F + 3];
+	}
         //*******************  Frame 4  *******************
         F = FOffset + FLength * 3;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        SystemTime = Buffer[F + 1] << 8 | Buffer[F];
-        Scheme = Buffer[F + 2];
-
-        OptionPostPulse = (Buffer[F + 3] & 0x01);
-        OptionThermostat = ((Buffer[F + 3] & 0x02) >> 1);
-        OptionHQM = ((Buffer[F + 3] & 0x04) >> 2);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  SystemTime = Buffer[F + 1] << 8 | Buffer[F];
+	  Scheme = Buffer[F + 2];
+	  OptionPostPulse = (Buffer[F + 3] & 0x01);
+	  OptionThermostat = ((Buffer[F + 3] & 0x02) >> 1);
+	  OptionHQM = ((Buffer[F + 3] & 0x04) >> 2);
+	}
         //*******************  Frame 5  *******************
         F = FOffset + FLength * 4;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
-        OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
+	  OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
+	}
         //*******************  Frame 6  *******************
         F = FOffset + FLength * 5;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        HeatQuantity = (Buffer[F + 1] << 8 | Buffer[F]) + (Buffer[F + 3] << 8 | Buffer[F + 2]) * 1000;
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  HeatQuantity = (Buffer[F + 1] << 8 | Buffer[F]) + (Buffer[F + 3] << 8 | Buffer[F + 2]) * 1000;
+	}
         //*******************  Frame 7  *******************
         F = FOffset + FLength * 6;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        HeatQuantity = HeatQuantity + (Buffer[F + 1] << 8 | Buffer[F]) * 1000000;
-        Version = Buffer[F + 3] << 8 | Buffer[F + 2];
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  HeatQuantity = HeatQuantity + (Buffer[F + 1] << 8 | Buffer[F]) * 1000000;
+	  Version = Buffer[F + 3] << 8 | Buffer[F + 2];
+	}
         ///******************* End of frames ****************
-
       } // end 0x3271 Conenergy DT5
 
       else if (Source_address == 0x5611)
@@ -452,7 +436,6 @@ bool VBUSDecoder::vBusRead()
         Serial.println("---------------");
         Serial.println("Now decoding for 0x5611");
         Serial.println("---------------");
-
 #endif
         // Frame info for the Resol Deltatherm FK and Oranier Aquacontrol III
         // check VBusprotocol specification for other products
@@ -485,50 +468,46 @@ bool VBUSDecoder::vBusRead()
         //*******************  Frame 1  *******************
 
         F = FOffset;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        // Some of the values are 7 bit instead of 8.
-        // Adding '& 0x7F' means you are only interested in the first 7 bits.
-        // 0x7F = 0b1111111.
-        // See: http://stackoverflow.com/questions/9552063/c-language-bitwise-trick
-        Relay1 = (Buffer[F] & 0X7F);
-        Relay2 = (Buffer[F + 1] & 0X7F);
-        MixerOpen = (Buffer[F + 2] & 0X7F);
-        MixerClosed = (Buffer[F + 3] & 0X7F);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  // Some of the values are 7 bit instead of 8.
+	  // Adding '& 0x7F' means you are only interested in the first 7 bits.
+	  // 0x7F = 0b1111111.
+	  // See: http://stackoverflow.com/questions/9552063/c-language-bitwise-trick
+	  Relay1 = (Buffer[F] & 0X7F);
+	  Relay2 = (Buffer[F + 1] & 0X7F);
+	  MixerOpen = (Buffer[F + 2] & 0X7F);
+	  MixerClosed = (Buffer[F + 3] & 0X7F);
+	}
         //*******************  Frame 4  *******************
         F = FOffset + FLength * 3;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        // System date is not needed for Domoticz
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  // System date is not needed for Domoticz
+	}
         //*******************  Frame 5  *******************
         F = FOffset + FLength * 4;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
         // System time is not needed for Domoticz
 
         // Status codes System Notification according to Resol:
@@ -541,8 +520,8 @@ bool VBUSDecoder::vBusRead()
         //6: ΔT too high
         //7: Low water level
 
-        SystemNotification = Buffer[F + 2];
-
+	  SystemNotification = Buffer[F + 2];
+	}
         ///******************* End of frames ****************
 
       } //End 0x5611 Resol DeltaTherm FK
@@ -557,53 +536,59 @@ bool VBUSDecoder::vBusRead()
 #endif
         //*******************  Frame 1  *******************
         F = FOffset;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         //*******************  Frame 3  *******************
         F = FOffset + FLength * 2;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        Relay1 = (Buffer[F]);
-        Relay2 = (Buffer[F + 1]);
-        ErrorMask = Buffer[F + 2];
-        Scheme = Buffer[F + 3];
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  Relay1 = (Buffer[F]);
+	  Relay2 = (Buffer[F + 1]);
+	  ErrorMask = Buffer[F + 2];
+	  Scheme = Buffer[F + 3];
+	}
         //*******************  Frame 4  *******************
         F = FOffset + FLength * 3;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
-        OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  OperatingHoursRelay1 = Buffer[F + 1] << 8 | Buffer[F];
+	  OperatingHoursRelay2 = Buffer[F + 3] << 8 | Buffer[F + 2];
+	}
         //*******************  Frame 5  *******************
         F = FOffset + FLength * 4;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        HeatQuantity = (Buffer[F + 1] << 8 | Buffer[F]) + (Buffer[F + 3] << 8 | Buffer[F + 2]) * 1000;
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  HeatQuantity = (Buffer[F + 1] << 8 | Buffer[F]) + (Buffer[F + 3] << 8 | Buffer[F + 2]) * 1000;
+	}
         //*******************  Frame 6  *******************
         F = FOffset + FLength * 5;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        HeatQuantity = HeatQuantity + (Buffer[F + 1] << 8 | Buffer[F]) * 1000000;
-        SystemTime = Buffer[F + 3] << 8 | Buffer[F + 2];
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  HeatQuantity = HeatQuantity + (Buffer[F + 1] << 8 | Buffer[F]) * 1000000;
+	  SystemTime = Buffer[F + 3] << 8 | Buffer[F + 2];
+	}
         //*******************  Frame 7  *******************
         F = FOffset + FLength * 6;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	}
         ///******************* End of frames ****************
 
       } // end 0x4212 DeltaSol C
@@ -613,17 +598,21 @@ bool VBUSDecoder::vBusRead()
         unsigned int frame = 0;
         // Frame 1:
         F = FOffset + frame * FLength;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         // Frame 2:
-        frame = 2;
+        frame++;
         F = FOffset + frame * FLength;
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         // Frame 7: Irradiation and unused
         /*
         frame = 7
@@ -639,8 +628,10 @@ bool VBUSDecoder::vBusRead()
         // Frame 14: Relays 9-12
         frame = 11;
         F = FOffset + frame * FLength;
-        Relay1 = Buffer[F];
-        Relay2 = Buffer[F + 1];
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Relay1 = Buffer[F];
+	  Relay2 = Buffer[F + 1];
+	}
         // Frame 15: Not used / relays
         // Frame 16: Errors / warnings
         // Frame 17: Version, revision / time
@@ -688,24 +679,22 @@ bool VBUSDecoder::vBusRead()
         //*******************  Frame 1  *******************
 
         F = FOffset;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+	  sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+	  sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         //*******************  Frame 2  *******************
         F = FOffset + FLength;
-
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-
+	if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+	  Septet = Buffer[F + FSeptet];
+	  InjectSeptet(Buffer, F, 4);
+	  sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	  sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+	}
         ///******************* End of frames ****************
 
       } //End of Default temp 1-4 extraction
