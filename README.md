@@ -69,4 +69,7 @@ Source code is based mainly on https://github.com/bbqkees/vbus-arduino-domoticz 
 #### Legal Notices
 RESOL, VBus, VBus.net and others are trademarks or registered trademarks of RESOL - Elektronische Regelungen GmbH.
 
-All other trademarks are the property of their respective owners.
+#### Check example
+Created an example to share data from arduino to an esp8266 device with Tasmota firmware, must enable driver TasmotaClient
+https://tasmota.github.io/docs/TasmotaClient/
+It is very useful to send an MQTT message via Wi-Fi to link with Domoticz, Node Red, etc ...
