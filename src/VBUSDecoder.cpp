@@ -111,6 +111,11 @@ String VBUSDecoder::getSystemTime()
   return toReturn;
 }
 
+uint32_t VBUSDecoder::getHeatQuantity()
+{
+  return HeatQuantity;
+}
+
 bool VBUSDecoder::readSensor()
 {
 
