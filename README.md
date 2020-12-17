@@ -7,8 +7,10 @@ Readout the Resol VBus interface on as many VBUS devices as possible while prese
 ## What does it do?
 This sketch reads the VBus data and depending on the format of the controller decodes the data and puts it in variables.
 
-## Is it stable?
-To be seen.
+## Check examples folder
+Created an example to share data from arduino to an esp8266 device with Tasmota firmware, must enable driver TasmotaClient
+https://tasmota.github.io/docs/TasmotaClient/
+It is very useful to send an MQTT message via Wi-Fi to link with Domoticz, Node Red, etc ...
 
 ## Controller support
 Currently supports the following controllers:
@@ -68,8 +70,3 @@ Source code is based mainly on https://github.com/bbqkees/vbus-arduino-domoticz 
 
 #### Legal Notices
 RESOL, VBus, VBus.net and others are trademarks or registered trademarks of RESOL - Elektronische Regelungen GmbH.
-
-#### Check example
-Created an example to share data from arduino to an esp8266 device with Tasmota firmware, must enable driver TasmotaClient
-https://tasmota.github.io/docs/TasmotaClient/
-It is very useful to send an MQTT message via Wi-Fi to link with Domoticz, Node Red, etc ...
