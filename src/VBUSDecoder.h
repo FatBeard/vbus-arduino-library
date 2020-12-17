@@ -44,6 +44,7 @@ class VBUSDecoder
 	int getP2OperatingHours();
 	int getScheme();
 	String getSystemTime();
+	uint32_t getHeatQuantity();
 
   protected:
   private:
