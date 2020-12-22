@@ -111,6 +111,11 @@ String VBUSDecoder::getSystemTime()
   return toReturn;
 }
 
+uint32_t VBUSDecoder::getHeatQuantity()
+{
+  return HeatQuantity;
+}
+
 bool VBUSDecoder::readSensor()
 {
 
@@ -592,7 +597,124 @@ bool VBUSDecoder::vBusRead()
         ///******************* End of frames ****************
 
       } // end 0x4212 DeltaSol C
-      else if (Source_address == 0x7311){ // Deltasol M, alias Roth B/W Komfort
+      	  else if (Source_address == 0x2211)
+      {
+  
+        // Frame info for the Resol DeltaSol CS Plus (Joule)
+        // check VBusprotocol specification for other products
+        // This library is made for the Resol DeltaSol CS Plus (0x2211)
+        //Offset  Mask        Name                Factor      Unit
+        //0                   Temperature S1      1.0         °C
+        //1                   Temperature S1      256.0       °C
+        //2                   Temperature S2      1.0         °C
+        //3                   Temperature S2      256.0       °C
+        //4                   Temperature S3      1.0         °C
+        //5                   Temperature S3      256.0       °C
+        //6                   Temperature S4      1.0         °C
+        //7                   Temperature S4      256.0       °C
+        //8                   Pump Speed R1       1           %
+        //10                  Operating Hours R1  1           h
+        //11                  Operating Hours R1  256         h
+        //12                  Pump Speed R2       1           %
+        //14                  Operating Hours R2  1           h
+        //15                  Operating Hours R2  256         h
+        //16                  UnitType            1
+        //17                  System              1
+        //20          1       Sensor 1 defekt     1
+        //20          2       Sensor 2 defekt     1
+        //20          4       Sensor 3 defekt     1
+        //20          8       Sensor 4 defekt     1
+        //20                  Error Mask          1
+        //20                  Error Mask          256
+        //22                  Time                1
+        //23                  Time                256
+        //24                  Statusmask          1
+        //25                  Statusmask          256
+        //26                  Statusmask          65536
+        //27                  Statusmask          16777216
+        //28                  Heat Quantity       1           Wh
+        //29                  Heat Quantity       256         Wh
+        //30                  Heat Quantity       65536       Wh
+        //31                  Heat Quantity       16777216    Wh
+        //32                  SW-Version          0.01
+        //33                  SW-Version          2.56
+        //
+        // Each frame has 6 bytes, FLength
+        // byte 1 to 4 are data bytes -> MSB of each bytes
+        // byte 5 is a septet and contains MSB of bytes 1 to 4, FSeptet
+        // byte 6 is a checksum
+        // FOffset 10, Offset start of Frames
+   //*******************  Frame 1  *******************
+#if DEBUG
+        Serial.println("---------------");
+        Serial.println("Now decoding for DeltaSol CS Plus 0x2211");
+        Serial.println("---------------");
+#endif
+        //*******************  Frame 1  *******************
+        F = FOffset;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
+        //*******************  Frame 2  *******************
+        F = FOffset + FLength;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
+        //*******************  Frame 3  *******************
+        F = FOffset + FLength * 2;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        Relay1 = (Buffer[F]);
+        OperatingHoursRelay1 = Buffer[F + 2] + Buffer[F + 3]*256; //Numero de horas rele 1
+        ErrorMask = Buffer[F + 2];
+        Scheme = Buffer[F + 3];
+        }
+        //*******************  Frame 4  *******************
+        F = FOffset + FLength * 3;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        Relay2 = (Buffer[F]);
+        OperatingHoursRelay2 = Buffer[F + 2] + Buffer[F + 3]*256;
+        }
+        //*******************  Frame 5  *******************
+        F = FOffset + FLength * 4;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        }
+        //*******************  Frame 6  *******************
+        F = FOffset + FLength * 5;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        SystemTime = Buffer[F + 3] << 8 | Buffer[F + 2];
+        }
+        //*******************  Frame 7  *******************
+        F = FOffset + FLength * 6;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        }
+        //*******************  Frame 8  *******************
+        F = FOffset + FLength * 7;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+        Septet = Buffer[F + FSeptet];
+        InjectSeptet(Buffer, F, 4);
+        HeatQuantity = Buffer[F] + Buffer[F + 1]*256 + Buffer[F + 2]*65536 + Buffer[F + 3]*16777216;
+        }
+        ///******************* End of frames ****************
+
+      } // end 0x2211 DeltaSol CS Plus
+	    
+	else if (Source_address == 0x7311){ // Deltasol M, alias Roth B/W Komfort
         // 6 temp frames, 12 sensors
         // Only decoding the first four due to library limitations
         unsigned int frame = 0;

@@ -7,8 +7,10 @@ Readout the Resol VBus interface on as many VBUS devices as possible while prese
 ## What does it do?
 This sketch reads the VBus data and depending on the format of the controller decodes the data and puts it in variables.
 
-## Is it stable?
-To be seen.
+## Check examples folder
+Created an example to share data from arduino to an esp8266 device with Tasmota firmware, must enable driver TasmotaClient
+https://tasmota.github.io/docs/TasmotaClient/
+It is very useful to send an MQTT message via Wi-Fi to link with Domoticz, Node Red, etc ...
 
 ## Controller support
 Currently supports the following controllers:
@@ -17,6 +19,7 @@ Currently supports the following controllers:
 * Conergy DT5 (0x3271)
 * Joule / Resol Deltasol C (0x4212)
 * Deltasol M, also rebranded as Roth B/W Komfort (0x7311)
+* DeltaSol CS Plus (0x2211)
 
 If it does not find any of the supported controllers, it will try to decode the first 2 frames which usually contain Temp 1 to 4.
 
@@ -67,5 +70,3 @@ Source code is based mainly on https://github.com/bbqkees/vbus-arduino-domoticz 
 
 #### Legal Notices
 RESOL, VBus, VBus.net and others are trademarks or registered trademarks of RESOL - Elektronische Regelungen GmbH.
-
-All other trademarks are the property of their respective owners.
