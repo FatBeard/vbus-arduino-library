@@ -1,0 +1,75 @@
+substitutions:
+  devicename: deltasol
+  upper_devicename: Deltasol
+
+packages:
+  wifi: !include config/wifi.yaml
+  device_base: !include config/device_base.yaml
+
+esphome:
+  name: ${devicename}
+  platform: ESP8266
+  board: esp8285
+
+  includes:
+    - resol.h
+
+logger:
+  baud_rate: 0 
+
+
+switch:
+  - platform: gpio
+    name: "Pump"
+    pin: GPIO12
+    id: relay
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: true
+    id: button1
+    on_press:
+      - switch.toggle: relay
+  - platform: template
+    name: "Solar Status"
+    lambda: |-
+      if (id(resol_status).state == 1) {
+        return true;
+      } else {
+        return false;
+      }
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: yes
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+
+sensor:
+- platform: custom
+  lambda: |-
+    auto resol_sensor = new Resol(id(uart_bus));
+    App.register_component(resol_sensor);
+    return {resol_sensor->panel_temperature, resol_sensor->hot_water, resol_sensor->bottom_tank, resol_sensor->solar_status};
+
+  sensors:
+    - name: "Solar Panel"
+      unit_of_measurement: °C
+      accuracy_decimals: 1
+    - name: "Hot Water"
+      unit_of_measurement: °C
+      accuracy_decimals: 1
+    - name: "Tank Bottom"
+      unit_of_measurement: °C
+      accuracy_decimals: 1
+    - id: "resol_status"
+      accuracy_decimals: 0
+
