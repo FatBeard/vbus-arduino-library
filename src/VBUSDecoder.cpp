@@ -769,6 +769,46 @@ bool VBUSDecoder::vBusRead()
         Serial.println(Relay2);
 #endif
       }
+      else if (Source_address == 0x4211)
+      {
+#if DEBUG
+        Serial.println("---------------");
+        Serial.println("Now decoding for 0x4211  SKSC1/2");
+        Serial.println("---------------");
+#endif
+
+
+        //*******************  Frame 1  *******************
+        F = FOffset;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+          // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+          sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+          // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+          sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
+        //*******************  Frame 2  *******************
+        F = FOffset + FLength;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+          sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+          sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        }
+        //*******************  Frame 3  *******************
+        // store Pump data in relay as it gets data from there.. dont know why? 
+        // Relay1 is then the pump speed in %
+        F = FOffset + FLength * 2;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+          Relay1 = (Buffer[F]);
+          Relay2 = (Buffer[F + 1]);
+          RelaisMask = Buffer[F + 2];
+          ErrorMask = Buffer[F + 3];
+        }
+      }  
 
       /* Add your own controller ID and code in the if statement below and uncomment
         else if (Source_address ==0x????){
