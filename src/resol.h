@@ -8,7 +8,7 @@
 
 class Resol: public PollingComponent, public UARTDevice, public Sensor {
 
-  public: Resol(UARTComponent * parent): PollingComponent(60000),
+  public: Resol(UARTComponent * parent): PollingComponent(30000),
   UARTDevice(parent) {};
 
   Sensor * panel_temperature = new Sensor();
@@ -229,7 +229,7 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
   String lastRelay2 = "1";
   String lastSystemAlert = "1";
 
-  unsigned char Buffer[80];
+  unsigned char Buffer[90];
   volatile unsigned char Bufferlength;
 
   unsigned int Destination_address;
@@ -240,7 +240,7 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
   unsigned char Septet;
   unsigned char Checksum;
   long lastTimeTimer;
-  long timerInterval =1;
+  long timerInterval = 200;
 
   // Clear all maximum values
   void clearMaxValues() {
@@ -275,30 +275,29 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
           if (start) {
             start = false;
             Bufferlength = 0;
-            //#if DEBUG
-            //#endif
+
           } else {
             if (Bufferlength < 20) {
               lastTimeTimer = millis();
               Bufferlength = 0;
-            } else
+
+            } else {
               stop = true;
+              
+              }
           }
         }
-        #if DEBUG
-        // Serial.println(c, HEX);
-        #endif
+  
+  
         if ((!start) and(!stop)) {
           Buffer[Bufferlength] = c;
           Bufferlength++;
         }
       }
       if ((timerInterval > 0) && (millis() - lastTimeTimer > timerInterval)) {
-        quit = true;
-        #if DEBUG
-        //   Serial.print("Timeout: ");
-        //   Serial.println(lastTimeTimer);
-        #endif
+
+        ESP_LOGD("Deltasol","Timed out waiting for data.");
+
       }
     }
 
