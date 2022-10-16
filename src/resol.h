@@ -602,11 +602,11 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
           ///******************* End of frames ****************
 
         } // end 0x4212 DeltaSol C
-        else if (Source_address == 0x2211) {
+        else if (Source_address == 0x2211 or Source_address == 0x4211) {
 
-          // Frame info for the Resol DeltaSol CS Plus (Joule)
+          // Frame info for the Resol DeltaSol CS Plus (Joule) or DeltaSol BS Plus
           // check VBusprotocol specification for other products
-          // This library is made for the Resol DeltaSol CS Plus (0x2211)
+          // This library is made for the Resol DeltaSol CS Plus (0x2211) or BS Plus (0x4211)
           //Offset  Mask        Name                Factor      Unit
           //0                   Temperature S1      1.0         °C
           //1                   Temperature S1      256.0       °C
@@ -651,7 +651,7 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
           //*******************  Frame 1  *******************
           #if DEBUG
           Serial.println("---------------");
-          Serial.println("Now decoding for DeltaSol CS Plus 0x2211");
+          Serial.println("Now decoding for DeltaSol CS Plus 0x2211 or BS Plus 0x4211");
           Serial.println("---------------");
           #endif
           //*******************  Frame 1  *******************
@@ -716,7 +716,7 @@ class Resol: public PollingComponent, public UARTDevice, public Sensor {
           }
           ///******************* End of frames ****************
 
-        } // end 0x2211 DeltaSol CS Plus
+        } // end 0x2211 DeltaSol CS Plus or 0x4211 DeltaSol BS Plus
         else if (Source_address == 0x7311) { // Deltasol M, alias Roth B/W Komfort
           // 6 temp frames, 12 sensors
           // Only decoding the first four due to library limitations
