@@ -1,3 +1,7 @@
+This library is no longer being maintained. I've switched to using https://esphome.io/components/vbus.html . Note though that the smt based pcb berger files on this page can still be used with the vbus project.
+
+
+
 # vbus-arduino-library
 Library to allow your program to readout of VBus interface Protocol 1.0 by Arduino.
 
